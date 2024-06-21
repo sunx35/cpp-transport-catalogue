@@ -1,9 +1,12 @@
 #include "stat_reader.h"
+#include <iomanip>
 
 void ParseAndPrintStat(const transport_catalogue::TransportCatalogue& catalogue, std::string_view line, std::ostream& out) {
 	using namespace std::literals;
 	// Bus 750
 	// Stop Marushkino
+
+	// Bus X : R stops on route, U unique stops, L route length, C curvature
 
 	if (line.at(line.find_first_not_of(' ')) == 'B') {
 		size_t busname_begin_pos = line.find_first_not_of(' ', 3);
@@ -14,9 +17,10 @@ void ParseAndPrintStat(const transport_catalogue::TransportCatalogue& catalogue,
 		try {
 			transport_catalogue::BusResponse data = catalogue.GetBusInfo(busname);
 
-			out << "Bus "s + std::string(busname) + ": " + std::to_string(data.stops_count) + " stops on route, "
-				+ std::to_string(data.unique_stops_count) + " unique stops, "
-				+ std::to_string(data.route_length) + " route length" << std::endl;
+			out << "Bus "s << busname << ": " << data.stops_count << " stops on route, "
+				<< data.unique_stops_count << " unique stops, "
+				<< std::setprecision(6) << data.route_length << " route length, "
+				<< data.curvature << " curvature" << std::endl;
 		}
 		catch (const std::invalid_argument& e) {
 			out << "Bus "s + std::string(busname) + ": not found"s << std::endl;
@@ -45,6 +49,7 @@ void ParseAndPrintStat(const transport_catalogue::TransportCatalogue& catalogue,
 				bus_line.append(bus);
 				bus_line.push_back(' ');
 			}
+			bus_line = bus_line.substr(0, bus_line.find_last_not_of(' ') + 1);
 			out << "Stop "s << stopname << ": buses "s << bus_line << std::endl;
 		}
 	}

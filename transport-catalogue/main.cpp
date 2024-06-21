@@ -1,6 +1,7 @@
 #include "transport_catalogue.h"
 #include "input_reader.h"
-#include "tests.h"
+//#include "tests.h"
+#include "stat_reader.h"
 
 #include <iostream>
 
@@ -9,7 +10,7 @@ using namespace transport_catalogue;
 using namespace input_reader;
 
 int main() {
-    RunTests();
+    //RunTests();
 
     TransportCatalogue catalogue;
 
