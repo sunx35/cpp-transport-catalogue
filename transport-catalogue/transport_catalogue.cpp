@@ -74,21 +74,15 @@ StopResponse TransportCatalogue::GetStopInfo(std::string_view stopname) const {
 	return response;
 }
 
-void TransportCatalogue::ApplyDistances() {
-	for (const auto& stop : stops_) {
-		for (const auto& [near_stop, distance] : stop.distances) {
-			Stop* A = stops_table_.at(stop.name);
-			Stop* B = stops_table_.at(near_stop);
-			distances_.insert({ { A, B }, distance });
-		}
-	}
+void TransportCatalogue::AddDistance(Stop* stop1, Stop* stop2, Distance distance) {
+	distances_.insert({ { stop1, stop2 }, distance });
 }
 
-Distance TransportCatalogue::GetDistance(Stop* s1, Stop* s2) const {
-	if (!distances_.count({ s1, s2 })) {
-		return distances_.at({ s2, s1 });
+Distance TransportCatalogue::GetDistance(Stop* stop1, Stop* stop2) const {
+	if (!distances_.count({ stop1, stop2 })) {
+		return distances_.at({ stop2, stop1 });
 	}
-	return distances_.at({ s1, s2 });
+	return distances_.at({ stop1, stop2 });
 }
 
 double TransportCatalogue::ComputeRouteLength(std::string_view busname) const {
@@ -108,11 +102,11 @@ Distance TransportCatalogue::ComputeRoadBasedRouteLength(std::string_view busnam
 	return overall_length;
 }
 
-bool operator==(const Key& lhs, const Key& rhs) {
+bool operator==(const DistancesKey& lhs, const DistancesKey& rhs) {
 	return lhs.first == rhs.first && lhs.second == rhs.second;
 }
 
-std::size_t DistancesHasher::operator()(const Key& key) const {
+std::size_t DistancesHasher::operator()(const DistancesKey& key) const {
 	return std::hash<const void*>()(key.first) + 37 * std::hash<const void*>()(key.second);
 }
 

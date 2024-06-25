@@ -12,10 +12,13 @@ struct BusBuffer {
 	std::vector<std::string> stops_names;
 };
 
-// нужен буфер для хранения расстояний между остановками (до того как имеем доступ ко всем указателям на остановки в deque)
+using DistancesBufferKey = std::pair<std::string, std::string>;
+
+struct DistancesBufferHasher {
+	std::size_t operator()(const DistancesBufferKey& key) const;
+};
 
 class InputReader {
-
 public:
 	void ParseLine(std::string_view line);
 
@@ -30,10 +33,11 @@ private:
 
 	void FindAndAddAnotherStop(std::vector<std::string>& stops_middle_buffer, const std::string_view& line, size_t prev_stop_end_pos);
 
-	void ParseStopsDistances(std::unordered_map<std::string, transport_catalogue::Distance>& distances_container, const std::string_view& line, size_t prev_end_pos);
+	void ParseStopsDistances(const std::string_view& stop_from, const std::string_view& line, size_t prev_end_pos);
 
 	std::vector<transport_catalogue::Stop> stops_buffer_;
 	std::vector<BusBuffer> buses_buffer_;
+	std::unordered_map<DistancesBufferKey, transport_catalogue::Distance, DistancesBufferHasher> stops_distances_buffer_;
 };
 
 } // namespace input_reader

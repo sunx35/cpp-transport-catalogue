@@ -14,17 +14,16 @@ namespace transport_catalogue {
 
 struct Stop;
 
-using Distance = double;
-using Key = std::pair<Stop*, Stop*>;
+using Distance = int;
+using DistancesKey = std::pair<Stop*, Stop*>;
 
 struct DistancesHasher {
-	std::size_t operator()(const Key& key) const;
+	std::size_t operator()(const DistancesKey& key) const;
 };
 
 struct Stop {
 	std::string name;
 	geo::Coordinates coordinates;
-	std::unordered_map<std::string, Distance> distances;
 };
 
 struct Bus {
@@ -60,9 +59,9 @@ public:
 
 	StopResponse GetStopInfo(std::string_view stopname) const;
 
-	void ApplyDistances();
+	void AddDistance(Stop* stop1, Stop* stop2, Distance distance);
 
-	Distance GetDistance(Stop*, Stop*) const;
+	Distance GetDistance(Stop* stop1, Stop* stop2) const;
 
 private:
 	double ComputeRouteLength(std::string_view busname) const;
@@ -74,7 +73,7 @@ private:
 	std::unordered_map<std::string_view, Stop*> stops_table_;
 	std::unordered_map<std::string_view, Bus*> buses_table_;
 	std::unordered_map<std::string_view, Buses> stops_to_buses_;
-	std::unordered_map<Key, Distance, DistancesHasher> distances_;
+	std::unordered_map<DistancesKey, Distance, DistancesHasher> distances_;
 };
 
 } // namespace transport_catalogue

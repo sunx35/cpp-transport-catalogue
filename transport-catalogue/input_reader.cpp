@@ -1,5 +1,7 @@
 #include "input_reader.h"
 
+#include <functional>
+
 namespace input_reader {
 
 void InputReader::ParseLine(std::string_view line) {
@@ -26,7 +28,11 @@ void InputReader::ApplyCommands(transport_catalogue::TransportCatalogue& catalog
 	}
 
 	// добавить все расстояния между остановками
-	catalogue.ApplyDistances();
+	for (const auto& [pair_stops_names, distance] : stops_distances_buffer_) {
+		transport_catalogue::Stop* stop1 = catalogue.FindStopByName(pair_stops_names.first);
+		transport_catalogue::Stop* stop2 = catalogue.FindStopByName(pair_stops_names.second);
+		catalogue.AddDistance(stop1, stop2, distance);
+	}
 
 	// добавить все автобусы
 	for (auto& bus_buffer : buses_buffer_) {
@@ -66,13 +72,11 @@ void InputReader::ParseStop(std::string_view line, size_t command_first_char) {
 	double longitude_d = std::stod(longitude.data());
 
 	// обработать расстояния до остановок
-	std::unordered_map<std::string, transport_catalogue::Distance> distances_container; // может быть пустым
-
 	if (longitude_end_pos != std::string::npos) {
-		ParseStopsDistances(distances_container, line, longitude_end_pos);
+		ParseStopsDistances(stopname, line, longitude_end_pos);
 	}
 
-	stops_buffer_.push_back({ std::string(stopname), { latitude_d, longitude_d }, distances_container });
+	stops_buffer_.push_back({ std::string(stopname), { latitude_d, longitude_d } });
 }
 
 void InputReader::ParseBus(std::string_view line, size_t command_first_char) {
@@ -164,7 +168,7 @@ void InputReader::FindAndAddAnotherStop(std::vector<std::string>& stops_middle_b
 	}
 }
 
-void InputReader::ParseStopsDistances(std::unordered_map<std::string, transport_catalogue::Distance>& distances_container, const std::string_view& line, size_t prev_end_pos) {
+void InputReader::ParseStopsDistances(const std::string_view& stop_from, const std::string_view& line, size_t prev_end_pos) {
 	// Stop X : latitude, longitude, D1m to stop1, D2m to stop2, ...
 
 	// здесь создадим отдельную рекурсионную функцию
@@ -173,7 +177,7 @@ void InputReader::ParseStopsDistances(std::unordered_map<std::string, transport_
 	size_t distance_end_pos = line.find_first_of('m', distance_begin_pos);
 	size_t distance_size = distance_end_pos - distance_begin_pos;
 	std::string_view distance = line.substr(distance_begin_pos, distance_size);
-	uint32_t distance_int = std::stoi(std::string(distance)); // неявное конверт. из int в uint32
+	int distance_int = std::stoi(std::string(distance));
 
 	size_t to = line.find("to", distance_end_pos);
 	size_t stop_begin_pos = line.find_first_not_of(' ', to + 2);
@@ -181,16 +185,24 @@ void InputReader::ParseStopsDistances(std::unordered_map<std::string, transport_
 	size_t stop_size;
 	if (stop_end_pos == std::string::npos) {
 		stop_size = line.size() - stop_begin_pos;
-		std::string stop_name = std::string(line.substr(stop_begin_pos, stop_size));
-		distances_container.insert({ std::move(stop_name), distance_int });
+		std::string stop_to = std::string(line.substr(stop_begin_pos, stop_size));
+		stops_distances_buffer_.insert({ { std::string(stop_from), std::move(stop_to) }, distance_int });
 	}
 	else {
 		stop_size = stop_end_pos - stop_begin_pos;
-		std::string stop_name = std::string(line.substr(stop_begin_pos, stop_size));
-		distances_container.insert({ std::move(stop_name), distance_int });
+		std::string stop_to = std::string(line.substr(stop_begin_pos, stop_size));
+		stops_distances_buffer_.insert({ { std::string(stop_from), std::move(stop_to) }, distance_int });
 		// рекурсия
-		ParseStopsDistances(distances_container, line, stop_end_pos);
+		ParseStopsDistances(stop_from, line, stop_end_pos);
 	}
+}
+
+std::size_t DistancesBufferHasher::operator()(const DistancesBufferKey& key) const {
+	return std::hash<std::string>()(key.first) + 23 * std::hash<std::string>()(key.second);
+}
+
+bool operator==(const DistancesBufferKey& lhs, const DistancesBufferKey& rhs) {
+	return lhs.first == rhs.first && lhs.second == rhs.second;
 }
 
 } // namespace input_reader

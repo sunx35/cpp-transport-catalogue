@@ -19,7 +19,7 @@ void ParseAndPrintStat(const transport_catalogue::TransportCatalogue& catalogue,
 
 			out << "Bus "s << busname << ": " << data.stops_count << " stops on route, "
 				<< data.unique_stops_count << " unique stops, "
-				<< std::setprecision(6) << data.route_length << " route length, "
+				<< std::setprecision(6) << static_cast<double>(data.route_length) << " route length, "
 				<< data.curvature << " curvature" << std::endl;
 		}
 		catch (const std::invalid_argument& e) {
