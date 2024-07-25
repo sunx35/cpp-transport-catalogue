@@ -1,6 +1,8 @@
 #pragma once
 #include "geo.h"
 
+#include "domain.h"
+
 #include <deque>
 #include <set>
 #include <string>
@@ -12,41 +14,14 @@
 
 namespace transport_catalogue {
 
-struct Stop;
-
-using Distance = int;
 using DistancesKey = std::pair<Stop*, Stop*>;
 
 struct DistancesHasher {
 	std::size_t operator()(const DistancesKey& key) const;
 };
 
-struct Stop {
-	std::string name;
-	geo::Coordinates coordinates;
-};
-
-struct Bus {
-	std::string name;
-	std::vector<Stop*> stops;
-};
-
-struct BusResponse {
-	size_t stops_count;
-	size_t unique_stops_count;
-	Distance route_length; // new route length, road-based
-	double curvature;
-};
-
-struct StopResponse {
-	bool stop_exist = false;
-	std::vector<std::string_view> buses;
-};
-
 class TransportCatalogue {
 public:
-	using Buses = std::set<std::string_view>;
-
 	void AddBus(Bus&& bus);
 
 	void AddStop(Stop&& stop);
@@ -58,6 +33,8 @@ public:
 	BusResponse GetBusInfo(std::string_view busname) const;
 
 	StopResponse GetStopInfo(std::string_view stopname) const;
+
+	BusesTable GetAllBuses() const;
 
 	void AddDistance(Stop* stop1, Stop* stop2, Distance distance);
 

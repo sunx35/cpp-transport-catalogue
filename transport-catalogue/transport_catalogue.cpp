@@ -37,19 +37,25 @@ Stop* TransportCatalogue::FindStopByName(std::string_view name) const {
 // получение информации о маршруте
 BusResponse TransportCatalogue::GetBusInfo(std::string_view busname) const {
 	BusResponse response;
-	const auto& stops = FindBusByName(busname)->stops; // может кинуть исключение
+	try {
+		const auto& stops = FindBusByName(busname)->stops; // может кинуть исключение
+		response.bus_exist = true;
+		response.stops_count = stops.size();
+		std::unordered_set<Stop*> unique_stops;
+		for (const auto& stop : stops) {
+			unique_stops.insert(stop);
+		}
+		response.unique_stops_count = unique_stops.size();
+		auto straight_route_length = ComputeRouteLength(busname);
+		response.route_length = ComputeRoadBasedRouteLength(busname);
+		response.curvature = response.route_length / straight_route_length;
 
-	response.stops_count = stops.size();
-	std::unordered_set<Stop*> unique_stops;
-	for (const auto& stop : stops) {
-		unique_stops.insert(stop);
+		return response;
 	}
-	response.unique_stops_count = unique_stops.size();
-	auto straight_route_length = ComputeRouteLength(busname);
-	response.route_length = ComputeRoadBasedRouteLength(busname);
-	response.curvature = response.route_length / straight_route_length;
-
-	return response;
+	catch (std::invalid_argument&) {
+		response.bus_exist = false;
+		return response;
+	}
 }
 
 StopResponse TransportCatalogue::GetStopInfo(std::string_view stopname) const {
@@ -72,6 +78,10 @@ StopResponse TransportCatalogue::GetStopInfo(std::string_view stopname) const {
 	}
 
 	return response;
+}
+
+BusesTable TransportCatalogue::GetAllBuses() const {
+	return buses_table_;
 }
 
 void TransportCatalogue::AddDistance(Stop* stop1, Stop* stop2, Distance distance) {
