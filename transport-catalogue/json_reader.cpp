@@ -9,8 +9,8 @@
 #include <vector>
 
 /*
- * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
- * а также код обработки запросов к базе и формирование массива ответов в формате JSON
+ * Р—РґРµСЃСЊ РјРѕР¶РЅРѕ СЂР°Р·РјРµСЃС‚РёС‚СЊ РєРѕРґ РЅР°РїРѕР»РЅРµРЅРёСЏ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ СЃРїСЂР°РІРѕС‡РЅРёРєР° РґР°РЅРЅС‹РјРё РёР· JSON,
+ * Р° С‚Р°РєР¶Рµ РєРѕРґ РѕР±СЂР°Р±РѕС‚РєРё Р·Р°РїСЂРѕСЃРѕРІ Рє Р±Р°Р·Рµ Рё С„РѕСЂРјРёСЂРѕРІР°РЅРёРµ РјР°СЃСЃРёРІР° РѕС‚РІРµС‚РѕРІ РІ С„РѕСЂРјР°С‚Рµ JSON
  */
 
 namespace json_reader {
@@ -35,19 +35,19 @@ void JsonReader::ReadInput(std::istream& input) {
 transport_catalogue::TransportCatalogue JsonReader::CreateDatabase() {
 	transport_catalogue::TransportCatalogue database;
 
-	// добавить все остановки
+	// РґРѕР±Р°РІРёС‚СЊ РІСЃРµ РѕСЃС‚Р°РЅРѕРІРєРё
 	for (Stop& stop : stops_buffer_) {
 		database.AddStop(std::move(stop));
 	}
 
-	// добавить все расстояния между остановками
+	// РґРѕР±Р°РІРёС‚СЊ РІСЃРµ СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РјРµР¶РґСѓ РѕСЃС‚Р°РЅРѕРІРєР°РјРё
 	for (const auto& [pair_stops_names, distance] : stops_distances_buffer_) {
 		Stop* stop1 = database.FindStopByName(pair_stops_names.first);
 		Stop* stop2 = database.FindStopByName(pair_stops_names.second);
 		database.AddDistance(stop1, stop2, distance);
 	}
 
-	// добавить все автобусы
+	// РґРѕР±Р°РІРёС‚СЊ РІСЃРµ Р°РІС‚РѕР±СѓСЃС‹
 	for (auto& bus_buffer : buses_buffer_) {
 		Bus bus;
 		bus.name = bus_buffer.bus_name;
@@ -148,9 +148,9 @@ void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& 
 	json::Array responses; // std::vector<json::Node>
 
 	for (const auto& request : stat_requests_) {
-		// запрос информации об автобусе:
+		// Р·Р°РїСЂРѕСЃ РёРЅС„РѕСЂРјР°С†РёРё РѕР± Р°РІС‚РѕР±СѓСЃРµ:
 		if (request.AsMap().at("type").AsString() == "Bus") {
-			// запросить информацию об автобусе
+			// Р·Р°РїСЂРѕСЃРёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± Р°РІС‚РѕР±СѓСЃРµ
 			BusResponse response = request_handler.GetBusInfo(request.AsMap().at("name").AsString());
 
 			if (response.bus_exist == false) {
@@ -162,7 +162,7 @@ void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& 
 				responses.push_back(response_dict);
 			}
 			else {
-				// ответ положить в json документ
+				// РѕС‚РІРµС‚ РїРѕР»РѕР¶РёС‚СЊ РІ json РґРѕРєСѓРјРµРЅС‚
 				json::Dict response_dict{
 					{ "curvature", json::Node(response.curvature) },
 					{ "request_id", json::Node(request.AsMap().at("id").AsInt()) },
@@ -175,7 +175,7 @@ void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& 
 			}
 		}
 		else if (request.AsMap().at("type").AsString() == "Stop") {
-			// запрос информации об остановке:
+			// Р·Р°РїСЂРѕСЃ РёРЅС„РѕСЂРјР°С†РёРё РѕР± РѕСЃС‚Р°РЅРѕРІРєРµ:
 			StopResponse response = request_handler.GetStopInfo(request.AsMap().at("name").AsString());
 
 			if (response.stop_exist == false) {
@@ -201,10 +201,10 @@ void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& 
 			}
 		}
 		else if (request.AsMap().at("type").AsString() == "Map") {
-			// запрос на рисование карты
+			// Р·Р°РїСЂРѕСЃ РЅР° СЂРёСЃРѕРІР°РЅРёРµ РєР°СЂС‚С‹
 			svg::Document doc = request_handler.RenderMap();
 
-			// документ конвертировать в строку, с экранированием спецсимволов
+			// РґРѕРєСѓРјРµРЅС‚ РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ РІ СЃС‚СЂРѕРєСѓ, СЃ СЌРєСЂР°РЅРёСЂРѕРІР°РЅРёРµРј СЃРїРµС†СЃРёРјРІРѕР»РѕРІ
 			std::ostringstream strm;
 			doc.Render(strm);
 
@@ -231,10 +231,10 @@ void JsonReader::ParseStop(json::Dict dict) {
 	/*
 	{
 		"type": "Stop",
-		"name": "Ривьерский мост",
+		"name": "Р РёРІСЊРµСЂСЃРєРёР№ РјРѕСЃС‚",
 		"latitude": 43.587795,
 		"longitude": 39.716901,
-		"road_distances": {"Морской вокзал": 850}
+		"road_distances": {"РњРѕСЂСЃРєРѕР№ РІРѕРєР·Р°Р»": 850}
 	},
 	*/
 
@@ -254,7 +254,7 @@ void JsonReader::ParseBus(json::Dict dict) {
 	{
 		"type": "Bus",
 		"name": "114",
-		"stops": ["Морской вокзал", "Ривьерский мост"],
+		"stops": ["РњРѕСЂСЃРєРѕР№ РІРѕРєР·Р°Р»", "Р РёРІСЊРµСЂСЃРєРёР№ РјРѕСЃС‚"],
 		"is_roundtrip": false
 	},
 	*/
@@ -264,7 +264,7 @@ void JsonReader::ParseBus(json::Dict dict) {
 	bool is_round = dict.at("is_roundtrip").AsBool();
 
 	if (is_round == false) {
-		// проход туда и обратно
+		// РїСЂРѕС…РѕРґ С‚СѓРґР° Рё РѕР±СЂР°С‚РЅРѕ
 		std::vector<std::string> bidirectional_middle_buffer;
 		for (const auto& stop : stops_middle_buffer) {
 			bidirectional_middle_buffer.push_back(stop.AsString());
@@ -275,7 +275,7 @@ void JsonReader::ParseBus(json::Dict dict) {
 		buses_buffer_.push_back({ std::move(busname), std::move(bidirectional_middle_buffer), is_round });
 	}
 	else {
-		// просто перенести в буфер всех маршрутов.
+		// РїСЂРѕСЃС‚Рѕ РїРµСЂРµРЅРµСЃС‚Рё РІ Р±СѓС„РµСЂ РІСЃРµС… РјР°СЂС€СЂСѓС‚РѕРІ.
 		std::vector<std::string> straight_middle_buffer;
 		for (const auto& stop : stops_middle_buffer) {
 			straight_middle_buffer.push_back(stop.AsString());

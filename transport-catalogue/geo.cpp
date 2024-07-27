@@ -12,7 +12,7 @@ bool Coordinates::operator!=(const Coordinates& other) const {
     return !operator==(other);
 }
 
-// функция для вычисления расстояния между двумя точками
+// С„СѓРЅРєС†РёСЏ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ СЂР°СЃСЃС‚РѕСЏРЅРёСЏ РјРµР¶РґСѓ РґРІСѓРјСЏ С‚РѕС‡РєР°РјРё
 double ComputeDistance(Coordinates from, Coordinates to) {
     using namespace std;
     if (from == to) {

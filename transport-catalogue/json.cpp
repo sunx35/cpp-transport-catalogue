@@ -95,7 +95,7 @@ bool operator==(const Node& left, const Node& right) {
     else if (left.IsInt() && right.IsInt() && (left.AsInt() == right.AsInt())) {
         return true;
     }
-    // мы намеренно не сравниваем IsDouble, потому что 2 разных типа могут быть описаны в этом методе.
+    // РјС‹ РЅР°РјРµСЂРµРЅРЅРѕ РЅРµ СЃСЂР°РІРЅРёРІР°РµРј IsDouble, РїРѕС‚РѕРјСѓ С‡С‚Рѕ 2 СЂР°Р·РЅС‹С… С‚РёРїР° РјРѕРіСѓС‚ Р±С‹С‚СЊ РѕРїРёСЃР°РЅС‹ РІ СЌС‚РѕРј РјРµС‚РѕРґРµ.
     else if (left.IsPureDouble() && right.IsPureDouble() && (left.AsPureDouble() == right.AsPureDouble())) {
         return true;
     }
@@ -190,7 +190,7 @@ Node LoadBool(istream& input) {
     }
 }
 
-// Распознаем int или double
+// Р Р°СЃРїРѕР·РЅР°РµРј int РёР»Рё double
 Node LoadNumber(istream& input) {
     /*
     "int": 123,
@@ -360,7 +360,7 @@ void PrintDouble(Node node, ostream& output) {
     output << node.AsDouble();
 }
 
-// PureDouble не особо нужен, возьмет либо Int либо Double.
+// PureDouble РЅРµ РѕСЃРѕР±Рѕ РЅСѓР¶РµРЅ, РІРѕР·СЊРјРµС‚ Р»РёР±Рѕ Int Р»РёР±Рѕ Double.
 
 void PrintString(Node node, ostream& output) {
     //  "Hello, \"everybody\""s
@@ -469,7 +469,7 @@ void PrintNode(Node node, ostream& output, Indent indent) {
     else if (node.IsDouble()) {
         PrintDouble(node, output);
     }
-    // PureDouble не особо нужен, возьмет либо Int либо Double.
+    // PureDouble РЅРµ РѕСЃРѕР±Рѕ РЅСѓР¶РµРЅ, РІРѕР·СЊРјРµС‚ Р»РёР±Рѕ Int Р»РёР±Рѕ Double.
     else if (node.IsString()) {
         PrintString(node, output);
     }

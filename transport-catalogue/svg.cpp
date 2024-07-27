@@ -90,7 +90,7 @@ bool operator!=(const Color color1, const Color color2) {
 void Object::Render(const RenderContext& context) const {
     context.RenderIndent();
 
-    // Делегируем вывод тега своим подклассам
+    // Р”РµР»РµРіРёСЂСѓРµРј РІС‹РІРѕРґ С‚РµРіР° СЃРІРѕРёРј РїРѕРґРєР»Р°СЃСЃР°Рј
     RenderObject(context);
 
     context.out << std::endl;
@@ -129,7 +129,7 @@ void Polyline::RenderObject(const RenderContext& context) const {
 
     int size = points_.size();
     for (const auto& p : points_) {
-        // if size == 0 - никаких проходов не будет вообще
+        // if size == 0 - РЅРёРєР°РєРёС… РїСЂРѕС…РѕРґРѕРІ РЅРµ Р±СѓРґРµС‚ РІРѕРѕР±С‰Рµ
         if (size == 1) {
             out << p.x << "," << p.y;
         }
@@ -146,37 +146,37 @@ void Polyline::RenderObject(const RenderContext& context) const {
 
 // ---------- Text --------------------
 
-// Задаёт координаты опорной точки (атрибуты x и y)
+// Р—Р°РґР°С‘С‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕРїРѕСЂРЅРѕР№ С‚РѕС‡РєРё (Р°С‚СЂРёР±СѓС‚С‹ x Рё y)
 Text& Text::SetPosition(Point pos) {
     pos_ = pos;
     return *this;
 }
 
-// Задаёт смещение относительно опорной точки (атрибуты dx, dy)
+// Р—Р°РґР°С‘С‚ СЃРјРµС‰РµРЅРёРµ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РѕРїРѕСЂРЅРѕР№ С‚РѕС‡РєРё (Р°С‚СЂРёР±СѓС‚С‹ dx, dy)
 Text& Text::SetOffset(Point offset) {
     offset_ = offset;
     return *this;
 }
 
-// Задаёт размеры шрифта (атрибут font-size)
+// Р—Р°РґР°С‘С‚ СЂР°Р·РјРµСЂС‹ С€СЂРёС„С‚Р° (Р°С‚СЂРёР±СѓС‚ font-size)
 Text& Text::SetFontSize(uint32_t size) {
     font_size_ = size;
     return *this;
 }
 
-// Задаёт название шрифта (атрибут font-family)
+// Р—Р°РґР°С‘С‚ РЅР°Р·РІР°РЅРёРµ С€СЂРёС„С‚Р° (Р°С‚СЂРёР±СѓС‚ font-family)
 Text& Text::SetFontFamily(std::string font_family) {
     font_family_ = font_family;
     return *this;
 }
 
-// Задаёт толщину шрифта (атрибут font-weight)
+// Р—Р°РґР°С‘С‚ С‚РѕР»С‰РёРЅСѓ С€СЂРёС„С‚Р° (Р°С‚СЂРёР±СѓС‚ font-weight)
 Text& Text::SetFontWeight(std::string font_weight) {
     font_weight_ = font_weight;
     return *this;
 }
 
-// Задаёт текстовое содержимое объекта (отображается внутри тега text)
+// Р—Р°РґР°С‘С‚ С‚РµРєСЃС‚РѕРІРѕРµ СЃРѕРґРµСЂР¶РёРјРѕРµ РѕР±СЉРµРєС‚Р° (РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РІРЅСѓС‚СЂРё С‚РµРіР° text)
 Text& Text::SetData(std::string data) {
     data_ = data;
     return *this;
@@ -229,12 +229,12 @@ void Text::RenderObject(const RenderContext& context) const {
 
 // ---------- Document ----------------
 
-// Добавляет в svg-документ объект-наследник svg::Object
+// Р”РѕР±Р°РІР»СЏРµС‚ РІ svg-РґРѕРєСѓРјРµРЅС‚ РѕР±СЉРµРєС‚-РЅР°СЃР»РµРґРЅРёРє svg::Object
 void Document::AddPtr(std::unique_ptr<Object>&& obj) {
     objects_.push_back(std::move(obj));
 }
 
-// Выводит в ostream svg-представление документа
+// Р’С‹РІРѕРґРёС‚ РІ ostream svg-РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р°
 void Document::Render(std::ostream& out) const {
     out << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"sv << std::endl;
     out << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">"sv << std::endl;

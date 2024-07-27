@@ -7,9 +7,9 @@
 #include <variant>
 
 /*
- * В этом файле вы можете разместить код, отвечающий за визуализацию карты маршрутов в формате SVG.
- * Визуализация маршртутов вам понадобится во второй части итогового проекта.
- * Пока можете оставить файл пустым.
+ * Р’ СЌС‚РѕРј С„Р°Р№Р»Рµ РІС‹ РјРѕР¶РµС‚Рµ СЂР°Р·РјРµСЃС‚РёС‚СЊ РєРѕРґ, РѕС‚РІРµС‡Р°СЋС‰РёР№ Р·Р° РІРёР·СѓР°Р»РёР·Р°С†РёСЋ РєР°СЂС‚С‹ РјР°СЂС€СЂСѓС‚РѕРІ РІ С„РѕСЂРјР°С‚Рµ SVG.
+ * Р’РёР·СѓР°Р»РёР·Р°С†РёСЏ РјР°СЂС€СЂС‚СѓС‚РѕРІ РІР°Рј РїРѕРЅР°РґРѕР±РёС‚СЃСЏ РІРѕ РІС‚РѕСЂРѕР№ С‡Р°СЃС‚Рё РёС‚РѕРіРѕРІРѕРіРѕ РїСЂРѕРµРєС‚Р°.
+ * РџРѕРєР° РјРѕР¶РµС‚Рµ РѕСЃС‚Р°РІРёС‚СЊ С„Р°Р№Р» РїСѓСЃС‚С‹Рј.
  */
 
 namespace renderer {
@@ -118,7 +118,7 @@ svg::Document MapRenderer::PrintMap(BusesTable buses_table) const {
 
 	svg::Document doc;
 
-	// сначала все линии, потом все тексты маршрутов, потом все кружочки и т.д.
+	// СЃРЅР°С‡Р°Р»Р° РІСЃРµ Р»РёРЅРёРё, РїРѕС‚РѕРј РІСЃРµ С‚РµРєСЃС‚С‹ РјР°СЂС€СЂСѓС‚РѕРІ, РїРѕС‚РѕРј РІСЃРµ РєСЂСѓР¶РѕС‡РєРё Рё С‚.Рґ.
 
 	{
 		auto color_it = color_palette_.begin();
@@ -127,7 +127,7 @@ svg::Document MapRenderer::PrintMap(BusesTable buses_table) const {
 				continue;
 			}
 
-			// Линия маршрута
+			// Р›РёРЅРёСЏ РјР°СЂС€СЂСѓС‚Р°
 
 			svg::Polyline line;
 
@@ -154,7 +154,7 @@ svg::Document MapRenderer::PrintMap(BusesTable buses_table) const {
 				continue;
 			}
 
-			// Название маршрута
+			// РќР°Р·РІР°РЅРёРµ РјР°СЂС€СЂСѓС‚Р°
 
 			svg::Text bus_label;
 			svg::Text bus_label_underlayer;
@@ -172,14 +172,14 @@ svg::Document MapRenderer::PrintMap(BusesTable buses_table) const {
 			doc.Add(bus_label_underlayer);
 			doc.Add(bus_label);
 
-			// вторая конечная остановка находится посередине массива
+			// РІС‚РѕСЂР°СЏ РєРѕРЅРµС‡РЅР°СЏ РѕСЃС‚Р°РЅРѕРІРєР° РЅР°С…РѕРґРёС‚СЃСЏ РїРѕСЃРµСЂРµРґРёРЅРµ РјР°СЃСЃРёРІР°
 			auto second_end_stop_ptr = bus->stops.at(bus->stops.size() / 2);
 			auto second_end_stop_point = projector(second_end_stop_ptr->coordinates);
 
-			// если это не круговой маршрут
+			// РµСЃР»Рё СЌС‚Рѕ РЅРµ РєСЂСѓРіРѕРІРѕР№ РјР°СЂС€СЂСѓС‚
 			if (!bus->is_round && first_stop_ptr != second_end_stop_ptr) {
 				svg::Text bus_label2 = bus_label;
-				svg::Text bus_label2_underlayer = bus_label_underlayer; // вторая конечная остановка
+				svg::Text bus_label2_underlayer = bus_label_underlayer; // РІС‚РѕСЂР°СЏ РєРѕРЅРµС‡РЅР°СЏ РѕСЃС‚Р°РЅРѕРІРєР°
 
 				bus_label2.SetPosition(second_end_stop_point);
 				bus_label2_underlayer.SetPosition(second_end_stop_point);
@@ -198,7 +198,7 @@ svg::Document MapRenderer::PrintMap(BusesTable buses_table) const {
 	}
 
 	{
-		// создаем уникальные и упорядоченные остановки
+		// СЃРѕР·РґР°РµРј СѓРЅРёРєР°Р»СЊРЅС‹Рµ Рё СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹Рµ РѕСЃС‚Р°РЅРѕРІРєРё
 
 		std::map<std::string_view, Stop*> sorted_stops;
 
@@ -212,7 +212,7 @@ svg::Document MapRenderer::PrintMap(BusesTable buses_table) const {
 			}
 		}
 
-		// Кружочки остановок
+		// РљСЂСѓР¶РѕС‡РєРё РѕСЃС‚Р°РЅРѕРІРѕРє
 
 		for (const auto& [_, stop] : sorted_stops) {
 			svg::Circle circle;
@@ -220,7 +220,7 @@ svg::Document MapRenderer::PrintMap(BusesTable buses_table) const {
 			doc.Add(circle);
 		}
 
-		// Текст остановок
+		// РўРµРєСЃС‚ РѕСЃС‚Р°РЅРѕРІРѕРє
 
 		for (const auto& [_, stop] : sorted_stops) {
 			svg::Text stop_label;
