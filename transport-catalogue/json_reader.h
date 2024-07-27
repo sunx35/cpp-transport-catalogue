@@ -16,23 +16,6 @@
 
 namespace json_reader {
 
-struct StatRequest {
-	StatRequest(int id, std::string type)
-		: id(id)
-		, type(type) {
-	}
-
-	StatRequest(int id, std::string type, std::string name)
-		: id(id)
-		, type(type)
-		, name(name) {
-	}
-
-	int id;
-	std::string type;
-	std::string name;
-};
-
 struct BusBuffer {
 	std::string bus_name;
 	std::vector<std::string> stops_names;
@@ -47,22 +30,22 @@ struct DistancesBufferHasher {
 
 class JsonReader {
 public:
-	void ParseLine(std::istream& input);
+	void ReadInput(std::istream& input);
 
-	void FillDatabase(transport_catalogue::TransportCatalogue& database);
+	transport_catalogue::TransportCatalogue CreateDatabase();
 
-	void SetupMapRenderer(renderer::MapRenderer& map_renderer) const;
+	renderer::MapRenderer CreateMapRenderer() const;
 
 	void RequestAndPrint(RequestHandler& request_handler, std::ostream& out) const;
-
-	std::vector<StatRequest> GetRequests() const;
-
-	void Print(json::Document& doc, std::ostream& out) const;
 
 private:
 	void ParseStop(json::Dict dict);
 
 	void ParseBus(json::Dict dict);
+
+	void Print(json::Document& doc, std::ostream& out) const;
+
+	std::vector<svg::Color> MakeColorPalette(json::Array colors) const;
 
 	std::vector<Stop> stops_buffer_;
 	std::vector<BusBuffer> buses_buffer_;

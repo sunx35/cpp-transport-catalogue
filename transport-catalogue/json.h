@@ -21,17 +21,11 @@ public:
     using runtime_error::runtime_error;
 };
 
-class Node {
+class Node : private std::variant<std::nullptr_t, int, double, std::string, bool, Array, Dict> {
 public:
-    Node() = default;
+    using variant::variant;
 
-    Node(nullptr_t);
-    Node(int);
-    Node(double);
-    Node(std::string);
-    Node(bool);
-    Node(Array);
-    Node(Dict);
+    Node() = default;
 
     bool IsNull() const;
     bool IsInt() const;
@@ -49,9 +43,6 @@ public:
     bool AsBool() const;
     const Array& AsArray() const;
     const Dict& AsMap() const;
-
-private:
-    Data data_ = nullptr_t();
 };
 
 bool operator==(const Node&, const Node&);

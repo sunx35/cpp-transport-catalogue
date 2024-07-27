@@ -2,78 +2,20 @@
 
 #include "request_handler.h"
 
+#include <functional>
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
+#include <vector>
 
 /*
  * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
  * а также код обработки запросов к базе и формирование массива ответов в формате JSON
  */
 
-#include <functional>
-
 namespace json_reader {
 
-	/*
-	----- INPUT EXAMPLE -----
-
-	{
-		"base_requests": [
-			{
-				"type": "Bus",
-				"name": "114",
-				"stops": ["Морской вокзал", "Ривьерский мост"],
-				"is_roundtrip": false
-			},
-			{
-				"type": "Stop",
-				"name": "Ривьерский мост",
-				"latitude": 43.587795,
-				"longitude": 39.716901,
-				"road_distances": {"Морской вокзал": 850}
-			},
-			{
-				"type": "Stop",
-				"name": "Морской вокзал",
-				"latitude": 43.581969,
-				"longitude": 39.719848,
-				"road_distances": {"Ривьерский мост": 850}
-			}
-		],
-		"stat_requests": [
-			{ "id": 1, "type": "Stop", "name": "Ривьерский мост" },
-			{ "id": 2, "type": "Bus", "name": "114" }
-		]
-	}
-
-	----- OUTPUT EXAMPLE -----
-
-	[
-		{
-			"buses": [
-				"114"
-			],
-			"request_id": 1
-		},
-		{
-			"curvature": 1.23199,
-			"request_id": 2,
-			"route_length": 1700,
-			"stop_count": 3,
-			"unique_stop_count": 2
-		}
-	]
-
-	----- IN CASE OF ERROR (FOR BUS OR FOR STOP) -----
-
-	{
-		"request_id": 12345,
-		"error_message" : "not found"
-	}
-	*/
-
-void JsonReader::ParseLine(std::istream& input) {
+void JsonReader::ReadInput(std::istream& input) {
 	json::Document doc = json::Load(input);
 
 	json::Array base_requests = doc.GetRoot().AsMap().at("base_requests").AsArray(); // array
@@ -90,7 +32,9 @@ void JsonReader::ParseLine(std::istream& input) {
 	}
 }
 
-void JsonReader::FillDatabase(transport_catalogue::TransportCatalogue& database) {
+transport_catalogue::TransportCatalogue JsonReader::CreateDatabase() {
+	transport_catalogue::TransportCatalogue database;
+
 	// добавить все остановки
 	for (Stop& stop : stops_buffer_) {
 		database.AddStop(std::move(stop));
@@ -113,9 +57,13 @@ void JsonReader::FillDatabase(transport_catalogue::TransportCatalogue& database)
 		bus.is_round = bus_buffer.is_round;
 		database.AddBus(std::move(bus));
 	}
+
+	return database;
 }
 
-void JsonReader::SetupMapRenderer(renderer::MapRenderer& map_renderer) const {
+renderer::MapRenderer JsonReader::CreateMapRenderer() const {
+	renderer::MapRenderer map_renderer;
+
 	map_renderer.SetWidth(render_settings_.at("width").AsDouble());
 	map_renderer.SetHeight(render_settings_.at("height").AsDouble());
 	map_renderer.SetPadding(render_settings_.at("padding").AsDouble());
@@ -160,8 +108,15 @@ void JsonReader::SetupMapRenderer(renderer::MapRenderer& map_renderer) const {
 
 	map_renderer.SetUnderlayerWidth(render_settings_.at("underlayer_width").AsDouble());
 
-	std::vector<svg::Color> color_palette;
 	json::Array colors = render_settings_.at("color_palette").AsArray();
+
+	map_renderer.SetColorPalette(MakeColorPalette(colors));
+
+	return map_renderer;
+}
+
+std::vector<svg::Color> JsonReader::MakeColorPalette(json::Array colors) const {
+	std::vector<svg::Color> color_palette;
 
 	for (const auto& color : colors) {
 		if (color.IsString()) {
@@ -184,78 +139,88 @@ void JsonReader::SetupMapRenderer(renderer::MapRenderer& map_renderer) const {
 		}
 	}
 
-	map_renderer.SetColorPalette(color_palette);
+	return color_palette;
 }
 
 void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& out) const {
-	json::Array answers;
+	using namespace std::literals;
 
-	for (const auto& req : stat_requests_) {
-		if (req.AsMap().at("type").AsString() == "Stop") {
-			StopResponse response = request_handler.GetStopInfo(req.AsMap().at("name").AsString());
+	json::Array responses; // std::vector<json::Node>
 
-			json::Dict answer;
-			json::Array buses;
-
-			for (const auto& each : response.buses) {
-				buses.push_back(std::string(each));
-			}
-
-			answer.insert({ "request_id", req.AsMap().at("id").AsInt() });
-
-			if (!response.stop_exist) {
-				using namespace std;
-				answer.insert({ "error_message", "not found"s });
-			}
-			else {
-				answer.insert({ "buses", buses });
-			}
-
-			answers.push_back(answer);
-		}
-		else {
-			BusResponse response = request_handler.GetBusInfo(req.AsMap().at("name").AsString());
-
-			json::Dict answer;
-
-			answer.insert({ "request_id", req.AsMap().at("id").AsInt() });
-
-			if (!response.bus_exist) {
-				using namespace std;
-				answer.insert({ "error_message", "not found"s });
-			}
-			else {
-				answer.insert({ "curvature", response.curvature });
-				answer.insert({ "route_length", response.route_length });
-				answer.insert({ "stop_count", static_cast<int>(response.stops_count) });
-				answer.insert({ "unique_stop_count", static_cast<int>(response.unique_stops_count) });
-			}
-
-			answers.push_back(answer);
-		}
-	}
-
-	json::Print(json::Document(answers), out);
-}
-
-std::vector<StatRequest> JsonReader::GetRequests() const {
-	std::vector<StatRequest> requests;
 	for (const auto& request : stat_requests_) {
-		if (request.AsMap().count("name")) {
-			requests.emplace_back(
-				request.AsMap().at("id").AsInt(),
-				request.AsMap().at("type").AsString(),
-				request.AsMap().at("name").AsString()
-			);
+		// запрос информации об автобусе:
+		if (request.AsMap().at("type").AsString() == "Bus") {
+			// запросить информацию об автобусе
+			BusResponse response = request_handler.GetBusInfo(request.AsMap().at("name").AsString());
+
+			if (response.bus_exist == false) {
+				json::Dict response_dict{
+					{ "error_message", "not found"s },
+					{ "request_id", json::Node(request.AsMap().at("id").AsInt()) }
+				};
+
+				responses.push_back(response_dict);
+			}
+			else {
+				// ответ положить в json документ
+				json::Dict response_dict{
+					{ "curvature", json::Node(response.curvature) },
+					{ "request_id", json::Node(request.AsMap().at("id").AsInt()) },
+					{ "route_length", json::Node(response.route_length) },
+					{ "stop_count", json::Node(static_cast<int>(response.stops_count)) },
+					{ "unique_stop_count", json::Node(static_cast<int>(response.unique_stops_count)) }
+				};
+
+				responses.push_back(response_dict);
+			}
 		}
-		else {
-			requests.emplace_back(
-				request.AsMap().at("id").AsInt(),
-				request.AsMap().at("type").AsString()
-			);
+		else if (request.AsMap().at("type").AsString() == "Stop") {
+			// запрос информации об остановке:
+			StopResponse response = request_handler.GetStopInfo(request.AsMap().at("name").AsString());
+
+			if (response.stop_exist == false) {
+				json::Dict response_dict{
+					{ "error_message", "not found"s },
+					{ "request_id", json::Node(request.AsMap().at("id").AsInt()) }
+				};
+
+				responses.push_back(response_dict);
+			}
+			else {
+				std::vector<json::Node> buses;
+				for (const auto& bus : response.buses) {
+					buses.push_back(json::Node(std::string(bus)));
+				}
+
+				json::Dict response_dict{
+					{ "buses", json::Node(buses) },
+					{ "request_id", request.AsMap().at("id").AsInt() }
+				};
+
+				responses.push_back(response_dict);
+			}
+		}
+		else if (request.AsMap().at("type").AsString() == "Map") {
+			// запрос на рисование карты
+			svg::Document doc = request_handler.RenderMap();
+
+			// документ конвертировать в строку, с экранированием спецсимволов
+			std::ostringstream strm;
+			doc.Render(strm);
+
+			std::string svg_document = strm.str();
+
+			json::Dict response_dict{
+				{ "map", svg_document },
+				{ "request_id", request.AsMap().at("id").AsInt() }
+			};
+
+			responses.push_back(response_dict);
 		}
 	}
-	return requests;
+
+	json::Document doc(responses);
+	Print(doc, out);
 }
 
 void JsonReader::Print(json::Document& doc, std::ostream& out) const {
