@@ -1,6 +1,7 @@
 #include "json_reader.h"
 
 #include "request_handler.h"
+#include "json_builder.h"
 
 #include <functional>
 #include <iostream>
@@ -145,7 +146,8 @@ std::vector<svg::Color> JsonReader::MakeColorPalette(json::Array colors) const {
 void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& out) const {
 	using namespace std::literals;
 
-	json::Array responses; // std::vector<json::Node>
+	json::Builder responses = json::Builder{};
+	responses.StartArray();
 
 	for (const auto& request : stat_requests_) {
 		// запрос информации об автобусе:
@@ -154,24 +156,19 @@ void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& 
 			BusResponse response = request_handler.GetBusInfo(request.AsMap().at("name").AsString());
 
 			if (response.bus_exist == false) {
-				json::Dict response_dict{
-					{ "error_message", "not found"s },
-					{ "request_id", json::Node(request.AsMap().at("id").AsInt()) }
-				};
-
-				responses.push_back(response_dict);
+				responses.StartDict()
+					.Key("error_message"s).Value("not found"s)
+					.Key("request_id"s).Value(request.AsMap().at("id").AsInt())
+					.EndDict();
 			}
 			else {
-				// ответ положить в json документ
-				json::Dict response_dict{
-					{ "curvature", json::Node(response.curvature) },
-					{ "request_id", json::Node(request.AsMap().at("id").AsInt()) },
-					{ "route_length", json::Node(response.route_length) },
-					{ "stop_count", json::Node(static_cast<int>(response.stops_count)) },
-					{ "unique_stop_count", json::Node(static_cast<int>(response.unique_stops_count)) }
-				};
-
-				responses.push_back(response_dict);
+				responses.StartDict()
+					.Key("curvature"s).Value(response.curvature)
+					.Key("request_id"s).Value(request.AsMap().at("id").AsInt())
+					.Key("route_length"s).Value(response.route_length)
+					.Key("stop_count"s).Value(static_cast<int>(response.stops_count))
+					.Key("unique_stop_count"s).Value(static_cast<int>(response.unique_stops_count))
+					.EndDict();
 			}
 		}
 		else if (request.AsMap().at("type").AsString() == "Stop") {
@@ -179,25 +176,22 @@ void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& 
 			StopResponse response = request_handler.GetStopInfo(request.AsMap().at("name").AsString());
 
 			if (response.stop_exist == false) {
-				json::Dict response_dict{
-					{ "error_message", "not found"s },
-					{ "request_id", json::Node(request.AsMap().at("id").AsInt()) }
-				};
-
-				responses.push_back(response_dict);
+				responses.StartDict()
+					.Key("error_message"s).Value("not found"s)
+					.Key("request_id"s).Value(request.AsMap().at("id").AsInt())
+					.EndDict();
 			}
 			else {
-				std::vector<json::Node> buses;
+				responses.StartDict()
+					.Key("buses"s).StartArray();
+
 				for (const auto& bus : response.buses) {
-					buses.push_back(json::Node(std::string(bus)));
+					responses.Value(std::string(bus));
 				}
 
-				json::Dict response_dict{
-					{ "buses", json::Node(buses) },
-					{ "request_id", request.AsMap().at("id").AsInt() }
-				};
-
-				responses.push_back(response_dict);
+				responses.EndArray()
+					.Key("request_id"s).Value(request.AsMap().at("id").AsInt())
+					.EndDict();
 			}
 		}
 		else if (request.AsMap().at("type").AsString() == "Map") {
@@ -210,16 +204,16 @@ void JsonReader::RequestAndPrint(RequestHandler& request_handler, std::ostream& 
 
 			std::string svg_document = strm.str();
 
-			json::Dict response_dict{
-				{ "map", svg_document },
-				{ "request_id", request.AsMap().at("id").AsInt() }
-			};
-
-			responses.push_back(response_dict);
+			responses.StartDict()
+				.Key("map"s).Value(svg_document)
+				.Key("request_id"s).Value(request.AsMap().at("id").AsInt())
+				.EndDict();
 		}
 	}
 
-	json::Document doc(responses);
+	responses.EndArray();
+
+	json::Document doc(responses.Build());
 	Print(doc, out);
 }
 

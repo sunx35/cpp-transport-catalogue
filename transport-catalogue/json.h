@@ -24,8 +24,11 @@ public:
 class Node : private std::variant<std::nullptr_t, int, double, std::string, bool, Array, Dict> {
 public:
     using variant::variant;
+    using Value = variant;
 
-    Node() = default;
+    Node(Value value)
+        : variant(std::move(value)) {
+    }
 
     bool IsNull() const;
     bool IsInt() const;
@@ -43,6 +46,10 @@ public:
     bool AsBool() const;
     const Array& AsArray() const;
     const Dict& AsMap() const;
+
+    Value& GetValue() {
+        return *this;
+    }
 };
 
 bool operator==(const Node&, const Node&);
