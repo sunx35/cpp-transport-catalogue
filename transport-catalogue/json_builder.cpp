@@ -99,7 +99,7 @@ Builder::BaseContext Builder::EndArray() {
     return *this;
 }
 
-Node Builder::Build() {
+Node Builder::Build() const {
     if (value_assigned_) {
         return root_;
     }

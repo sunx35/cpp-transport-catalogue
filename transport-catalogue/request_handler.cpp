@@ -18,6 +18,10 @@ StopResponse RequestHandler::GetStopInfo(const std::string_view& stop_name) cons
 	return db_.GetStopInfo(stop_name);
 }
 
+std::optional<RouteResponse> RequestHandler::GetRoute(std::string_view from, std::string_view to) const {
+	return router_.GetRoute(from, to);
+}
+
 BusesTable RequestHandler::GetAllBuses() const {
 	return db_.GetAllBuses();
 }

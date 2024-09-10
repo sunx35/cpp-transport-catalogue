@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 /*
@@ -51,4 +52,30 @@ struct StopResponse {
 	std::vector<std::string_view> buses;
 };
 
+// timecut type
+struct Wait {
+	double time;
+	std::string_view stop_name;
+};
+
+// timecut type
+struct RidingBus {
+	double time;
+	std::string_view bus_name;
+	size_t span_count;
+};
+
+using Timecut = std::variant<Wait, RidingBus>;
+
+struct RouteResponse {
+	double total_time;
+	std::vector<Timecut> time_cuts; // it could be waiting on a stop or travelling on a bus.
+};
+
 using BusesTable = std::unordered_map<std::string_view, Bus*>;
+using StopsTable = std::unordered_map<std::string_view, Stop*>;
+
+struct RoutingSettings {
+	double bus_wait_time; // in minutes
+	double bus_velocity; // in km/h
+};

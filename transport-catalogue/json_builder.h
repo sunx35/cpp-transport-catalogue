@@ -17,7 +17,7 @@ public:
     ArrayItemContext StartArray();
     BaseContext EndDict();
     BaseContext EndArray();
-    Node Build();
+    Node Build() const;
 
 private:
     Node root_;
@@ -47,7 +47,7 @@ private:
         BaseContext EndArray() {
             return builder_.EndArray();
         }
-        Node Build() {
+        Node Build() const {
             return builder_.Build();
         }
 

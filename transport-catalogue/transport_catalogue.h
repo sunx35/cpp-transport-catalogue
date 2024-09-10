@@ -36,6 +36,8 @@ public:
 
 	BusesTable GetAllBuses() const;
 
+	StopsTable GetAllStops() const;
+
 	void AddDistance(Stop* stop1, Stop* stop2, Distance distance);
 
 	Distance GetDistance(Stop* stop1, Stop* stop2) const;

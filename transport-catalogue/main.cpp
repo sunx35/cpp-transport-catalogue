@@ -2,6 +2,7 @@
 #include "json_reader.h"
 #include "map_renderer.h"
 #include "request_handler.h"
+#include "transport_router.h"
 //#include "tests.h"
 
 #include <iostream>
@@ -11,16 +12,18 @@ using namespace std;
 using namespace transport_catalogue;
 using namespace json_reader;
 using namespace renderer;
+using namespace router;
 
 int main() {
     //RunTests();
 
     JsonReader reader;
     reader.ReadInput(cin);
-    TransportCatalogue catalogue = reader.CreateDatabase();
-    MapRenderer renderer = reader.CreateMapRenderer();
+    const TransportCatalogue catalogue = reader.CreateDatabase();
+    const MapRenderer renderer = reader.CreateMapRenderer();
+    const TransportRouter router = reader.CreateTransportRouter(catalogue);
 
-    RequestHandler request_handler(catalogue, renderer);
+    const RequestHandler request_handler(catalogue, renderer, router);
 
     reader.RequestAndPrint(request_handler, cout);
 }

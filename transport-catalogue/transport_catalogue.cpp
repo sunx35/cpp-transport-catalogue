@@ -84,6 +84,10 @@ BusesTable TransportCatalogue::GetAllBuses() const {
 	return buses_table_;
 }
 
+StopsTable TransportCatalogue::GetAllStops() const {
+	return stops_table_;
+}
+
 void TransportCatalogue::AddDistance(Stop* stop1, Stop* stop2, Distance distance) {
 	distances_.insert({ { stop1, stop2 }, distance });
 }
