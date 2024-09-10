@@ -39,19 +39,19 @@ std::optional<RouteResponse> TransportRouter::GetRoute(std::string_view from, st
 }
 
 void TransportRouter::InitializeStops() {
-    // таблица для соотношения VertexId и названий остановок
+    // С‚Р°Р±Р»РёС†Р° РґР»СЏ СЃРѕРѕС‚РЅРѕС€РµРЅРёСЏ VertexId Рё РЅР°Р·РІР°РЅРёР№ РѕСЃС‚Р°РЅРѕРІРѕРє
     graph::VertexId vertexId = 0;
     for (const auto& [stop_name, _] : catalogue_.GetAllStops()) {
         stops_ids_table_.insert({ stop_name, vertexId });
-        // каждая остановка будет состоять из двух вертексов.
-        // но второй вертекс будет воображаемый, мы не будет хранить его в контейнере,
-        // а будем просто добавлять +1 там, где этот вертекс нужен.
+        // РєР°Р¶РґР°СЏ РѕСЃС‚Р°РЅРѕРІРєР° Р±СѓРґРµС‚ СЃРѕСЃС‚РѕСЏС‚СЊ РёР· РґРІСѓС… РІРµСЂС‚РµРєСЃРѕРІ.
+        // РЅРѕ РІС‚РѕСЂРѕР№ РІРµСЂС‚РµРєСЃ Р±СѓРґРµС‚ РІРѕРѕР±СЂР°Р¶Р°РµРјС‹Р№, РјС‹ РЅРµ Р±СѓРґРµС‚ С…СЂР°РЅРёС‚СЊ РµРіРѕ РІ РєРѕРЅС‚РµР№РЅРµСЂРµ,
+        // Р° Р±СѓРґРµРј РїСЂРѕСЃС‚Рѕ РґРѕР±Р°РІР»СЏС‚СЊ +1 С‚Р°Рј, РіРґРµ СЌС‚РѕС‚ РІРµСЂС‚РµРєСЃ РЅСѓР¶РµРЅ.
         vertexId += 2;
     }
 }
 
 void TransportRouter::InitializeGraph() {
-    // сначала добавляем в граф все эджы для ожидания на остановках
+    // СЃРЅР°С‡Р°Р»Р° РґРѕР±Р°РІР»СЏРµРј РІ РіСЂР°С„ РІСЃРµ СЌРґР¶С‹ РґР»СЏ РѕР¶РёРґР°РЅРёСЏ РЅР° РѕСЃС‚Р°РЅРѕРІРєР°С…
     graph_ = graph::DirectedWeightedGraph<double>{ catalogue_.GetAllStops().size() * 2 };
 
     for (const auto& [stop_name, vertexId] : stops_ids_table_) {
@@ -62,20 +62,20 @@ void TransportRouter::InitializeGraph() {
     BusesTable buses_table = catalogue_.GetAllBuses();
     for (const auto& [name, bus_ptr] : buses_table) {
         auto stops = bus_ptr->stops;
-        for (size_t i = 0; i < stops.size() - 1; ++i) { // нам не нужно считать с 5-й до 5-й, только с 4-й до 5-й (например)
-            // если автобус не круговой, нужно пройтись только по половине остановок
-            if (!bus_ptr->is_round && i >= stops.size() / 2) { // нам не нужно считать с 5-й до 5-й, только с 4-й до 5-й (например)
+        for (size_t i = 0; i < stops.size() - 1; ++i) { // РЅР°Рј РЅРµ РЅСѓР¶РЅРѕ СЃС‡РёС‚Р°С‚СЊ СЃ 5-Р№ РґРѕ 5-Р№, С‚РѕР»СЊРєРѕ СЃ 4-Р№ РґРѕ 5-Р№ (РЅР°РїСЂРёРјРµСЂ)
+            // РµСЃР»Рё Р°РІС‚РѕР±СѓСЃ РЅРµ РєСЂСѓРіРѕРІРѕР№, РЅСѓР¶РЅРѕ РїСЂРѕР№С‚РёСЃСЊ С‚РѕР»СЊРєРѕ РїРѕ РїРѕР»РѕРІРёРЅРµ РѕСЃС‚Р°РЅРѕРІРѕРє
+            if (!bus_ptr->is_round && i >= stops.size() / 2) { // РЅР°Рј РЅРµ РЅСѓР¶РЅРѕ СЃС‡РёС‚Р°С‚СЊ СЃ 5-Р№ РґРѕ 5-Р№, С‚РѕР»СЊРєРѕ СЃ 4-Р№ РґРѕ 5-Р№ (РЅР°РїСЂРёРјРµСЂ)
                 break;
             }
 
-            for (size_t j = i + 1; j < stops.size(); ++j) { // забираем крайнюю
-                // если автобус не круговой, нужно пройтись только по половине остановок
-                if (!bus_ptr->is_round && j > stops.size() / 2) { // забираем центральную
+            for (size_t j = i + 1; j < stops.size(); ++j) { // Р·Р°Р±РёСЂР°РµРј РєСЂР°Р№РЅСЋСЋ
+                // РµСЃР»Рё Р°РІС‚РѕР±СѓСЃ РЅРµ РєСЂСѓРіРѕРІРѕР№, РЅСѓР¶РЅРѕ РїСЂРѕР№С‚РёСЃСЊ С‚РѕР»СЊРєРѕ РїРѕ РїРѕР»РѕРІРёРЅРµ РѕСЃС‚Р°РЅРѕРІРѕРє
+                if (!bus_ptr->is_round && j > stops.size() / 2) { // Р·Р°Р±РёСЂР°РµРј С†РµРЅС‚СЂР°Р»СЊРЅСѓСЋ
                     break;
                 }
 
-                // считаем дистанцию участка (из нескольких остановок)
-                // туда и обратно
+                // СЃС‡РёС‚Р°РµРј РґРёСЃС‚Р°РЅС†РёСЋ СѓС‡Р°СЃС‚РєР° (РёР· РЅРµСЃРєРѕР»СЊРєРёС… РѕСЃС‚Р°РЅРѕРІРѕРє)
+                // С‚СѓРґР° Рё РѕР±СЂР°С‚РЅРѕ
                 double stops_distance = 0;
                 double stops_distance_inverse = 0;
                 for (size_t k = i + 1; k <= j; ++k) {
@@ -83,7 +83,7 @@ void TransportRouter::InitializeGraph() {
                     stops_distance_inverse += catalogue_.GetDistance(stops[k], stops[k - 1]);
                 }
                 auto edge_id = graph_.AddEdge({
-                    FindVertexIdByStopName(stops[i]->name) + 1, // та самая +1 для выходного вертекса
+                    FindVertexIdByStopName(stops[i]->name) + 1, // С‚Р° СЃР°РјР°СЏ +1 РґР»СЏ РІС‹С…РѕРґРЅРѕРіРѕ РІРµСЂС‚РµРєСЃР°
                     FindVertexIdByStopName(stops[j]->name),
                     stops_distance / METERS_IN_KILOMETERS / settings_.bus_velocity * MINUTES_IN_HOUR });
                 time_cuts_[edge_id] = RidingBus{
@@ -91,7 +91,7 @@ void TransportRouter::InitializeGraph() {
                     /*bus_name*/ name,
                     /*span_count*/ j - i };
 
-                // если это не круговой автобус, тогда берем обратные дистанции
+                // РµСЃР»Рё СЌС‚Рѕ РЅРµ РєСЂСѓРіРѕРІРѕР№ Р°РІС‚РѕР±СѓСЃ, С‚РѕРіРґР° Р±РµСЂРµРј РѕР±СЂР°С‚РЅС‹Рµ РґРёСЃС‚Р°РЅС†РёРё
                 if (!bus_ptr->is_round) {
                     auto edge_id = graph_.AddEdge({
                         FindVertexIdByStopName(stops[j]->name) + 1,
