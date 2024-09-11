@@ -1,16 +1,4 @@
-#pragma once
-
-#include "svg.h"
-#include "domain.h"
-#include "geo.h"
-
-#include <algorithm>
-#include <cstdlib>
-#include <iostream>
-#include <optional>
-#include <vector>
-
-/*
+﻿/*
  * В этом файле вы можете разместить код, отвечающий за визуализацию карты маршрутов в формате SVG.
  * Визуализация маршртутов вам понадобится во второй части итогового проекта.
  * Пока можете оставить файл пустым.
@@ -25,6 +13,18 @@
        <polyline points="550,190.051 279.22,50 333.61,269.08 550,190.051" fill="none" stroke="rgb(255,160,0)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
      </svg>
  */
+
+#pragma once
+
+#include "svg.h"
+#include "domain.h"
+#include "geo.h"
+
+#include <algorithm>
+#include <cstdlib>
+#include <iostream>
+#include <optional>
+#include <vector>
 
 namespace renderer {
 
@@ -103,22 +103,22 @@ private:
 
 class MapRenderer {
 public:
-    MapRenderer() = default;
+	MapRenderer() = default;
 
-    void SetWidth(double width);
-    void SetHeight(double height);
-    void SetPadding(double padding);
-    void SetStopRadius(double stop_radius);
-    void SetLineWidth(double line_width);
-    void SetBusLabelFontSize(int bus_label_font_size);
-    void SetBusLabelOffset(svg::Point bus_label_offset);
-    void SetStopLabelFontSize(int stop_label_font_size);
-    void SetStopLabelOffset(svg::Point stop_label_offset);
-    void SetUnderlayerColor(svg::Color underlayer_color);
-    void SetUnderlayerWidth(double underlayer_width);
-    void SetColorPalette(std::vector<svg::Color> color_palette);
+	void SetWidth(double width);
+	void SetHeight(double height);
+	void SetPadding(double padding);
+	void SetStopRadius(double stop_radius);
+	void SetLineWidth(double line_width);
+	void SetBusLabelFontSize(int bus_label_font_size);
+	void SetBusLabelOffset(svg::Point bus_label_offset);
+	void SetStopLabelFontSize(int stop_label_font_size);
+	void SetStopLabelOffset(svg::Point stop_label_offset);
+	void SetUnderlayerColor(svg::Color underlayer_color);
+	void SetUnderlayerWidth(double underlayer_width);
+	void SetColorPalette(std::vector<svg::Color> color_palette);
 
-    svg::Document PrintMap(BusesTable buses_table) const;
+	svg::Document PrintMap(BusesTable buses_table) const;
 
 private:
     double width_ = 1200.0;
@@ -126,12 +126,12 @@ private:
     double padding_ = 50.0;
     double stop_radius_ = 5.0;
     double line_width_ = 14.0;
-    int bus_label_font_size_ = 20;
+	int bus_label_font_size_ = 20;
     svg::Point bus_label_offset_ = { 7.0, 15.0 };
-    int stop_label_font_size_ = 20;
+	int stop_label_font_size_ = 20;
     svg::Point stop_label_offset_ = { 7.0, -3.0 };
     svg::Color underlayer_color_ = {};
-    double underlayer_width_ = 3.0;
+	double underlayer_width_ = 3.0;
     std::vector<svg::Color> color_palette_ = {
         "green",
         svg::Rgb{ 255, 160, 0 },

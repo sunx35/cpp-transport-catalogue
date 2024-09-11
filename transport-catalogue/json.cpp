@@ -1,4 +1,4 @@
-#include "json.h"
+﻿#include "json.h"
 
 using namespace std;
 
@@ -121,7 +121,7 @@ bool operator!=(const Node& left, const Node& right) {
 }
 
 Document::Document(Node root)
-    : root_(move(root)) {
+    : root_(std::move(root)) {
 }
 
 const Node& Document::GetRoot() const {
@@ -152,7 +152,7 @@ Node LoadArray(istream& input) {
         throw ParsingError("Array has no closing symbol");
     }
 
-    return Node(move(result));
+    return Node(std::move(result));
 }
 
 Node LoadNull(istream& input) {
@@ -220,19 +220,10 @@ Node LoadNumber(istream& input) {
     }
 }
 
-// Deprecated
-Node LoadInt(istream& input) {
-    int result = 0;
-    while (isdigit(input.peek())) {
-        result *= 10;
-        result += input.get() - '0';
-    }
-    return Node(result);
-}
-
 Node LoadString(istream& input) {
     //  "\"Hello, \\\"everybody\\\"\""s
     //  "Hello, \"everybody\""s
+
     //  "\"\\r\\n\\t\\\"\\\\\""s
     //  "\r\n\t\"\\"s
 
@@ -274,7 +265,7 @@ Node LoadString(istream& input) {
         }
     }
 
-    return Node(move(line));
+    return Node(std::move(line));
 }
 
 Node LoadDict(istream& input) {
@@ -287,14 +278,14 @@ Node LoadDict(istream& input) {
 
         string key = LoadString(input).AsString();
         input >> c;
-        result.insert({ move(key), LoadNode(input) });
+        result.insert({ std::move(key), LoadNode(input) });
     }
 
     if (input.eof()) {
         throw ParsingError("Dict has no closing symbol");
     }
 
-    return Node(move(result));
+    return Node(std::move(result));
 }
 
 Node LoadNode(istream& input) {

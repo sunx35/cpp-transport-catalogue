@@ -1,3 +1,8 @@
+﻿/*
+ * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
+ * а также код обработки запросов к базе и формирование массива ответов в формате JSON
+ */
+
 #include "json_reader.h"
 
 #include "request_handler.h"
@@ -8,11 +13,6 @@
 #include <string>
 #include <variant>
 #include <vector>
-
-/*
- * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
- * а также код обработки запросов к базе и формирование массива ответов в формате JSON
- */
 
 namespace json_reader {
 
@@ -99,7 +99,7 @@ renderer::MapRenderer JsonReader::CreateMapRenderer() const {
 			static_cast<uint8_t>(underlayer_color_node.AsArray().at(0).AsInt()),
 			static_cast<uint8_t>(underlayer_color_node.AsArray().at(1).AsInt()),
 			static_cast<uint8_t>(underlayer_color_node.AsArray().at(2).AsInt())
-			});
+		});
 	}
 	else if (underlayer_color_node.IsArray() && underlayer_color_node.AsArray().size() == 4) {
 		map_renderer.SetUnderlayerColor(svg::Rgba{
@@ -107,11 +107,11 @@ renderer::MapRenderer JsonReader::CreateMapRenderer() const {
 			static_cast<uint8_t>(underlayer_color_node.AsArray().at(1).AsInt()),
 			static_cast<uint8_t>(underlayer_color_node.AsArray().at(2).AsInt()),
 			underlayer_color_node.AsArray().at(3).AsDouble()
-			});
+		});
 	}
 
 	map_renderer.SetUnderlayerWidth(render_settings_.at("underlayer_width").AsDouble());
-
+	
 	json::Array colors = render_settings_.at("color_palette").AsArray();
 
 	map_renderer.SetColorPalette(MakeColorPalette(colors));

@@ -9,13 +9,10 @@
 #include <string_view>
 #include <unordered_map>
 
-// взять информацию о маршрутах и определить необходимые пути.
-// нужно создать graph и из него router.
-
 namespace router {
 
-static const double MINUTES_IN_HOUR = 60.0;
-static const double METERS_IN_KILOMETERS = 1000.0;
+static const int MINUTES_IN_HOUR = 60;
+static const int METERS_IN_KILOMETERS = 1000;
 
 class TransportRouter {
 public:
@@ -28,6 +25,8 @@ private:
 
     void InitializeStops();
     void InitializeGraph();
+
+    void CreateEdgesBetweenStops(std::string_view bus_name, const Bus* const bus_ptr);
 
     RoutingSettings settings_;
     const transport_catalogue::TransportCatalogue& catalogue_;

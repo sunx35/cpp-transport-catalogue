@@ -1,7 +1,4 @@
-#pragma once
-
-// нужно ли использовать префикс std:: для математических функций, например sin, cos и т.д.
-// не будет ли конфликта у разных копиляторов
+﻿#pragma once
 
 namespace geo {
 
@@ -13,7 +10,6 @@ struct Coordinates {
     bool operator!=(const Coordinates& other) const;
 };
 
-// функция для вычисления расстояния между двумя точками
 double ComputeDistance(Coordinates from, Coordinates to);
 
 } // namespace geo

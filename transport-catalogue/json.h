@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <istream>
 #include <map>
@@ -53,13 +53,11 @@ public:
 };
 
 bool operator==(const Node&, const Node&);
-
 bool operator!=(const Node&, const Node&);
 
 class Document {
 public:
     explicit Document(Node root);
-
     const Node& GetRoot() const;
 
 private:
@@ -67,11 +65,9 @@ private:
 };
 
 bool operator==(const Document&, const Document&);
-
 bool operator!=(const Document&, const Document&);
 
 Document Load(std::istream& input);
-
 void Print(const Document& doc, std::ostream& output);
 
 } // namespace json

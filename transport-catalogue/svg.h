@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstdint>
 #include <iostream>
@@ -25,7 +25,6 @@ enum class StrokeLineJoin {
 };
 
 std::ostream& operator<<(std::ostream& out, const StrokeLineCap& slc);
-
 std::ostream& operator<<(std::ostream& out, const StrokeLineJoin& slj);
 
 struct Point {
@@ -39,9 +38,9 @@ struct Point {
 };
 
 /*
-    * Вспомогательная структура, хранящая контекст для вывода SVG-документа с отступами.
-    * Хранит ссылку на поток вывода, текущее значение и шаг отступа при выводе элемента
-    */
+* Вспомогательная структура, хранящая контекст для вывода SVG-документа с отступами.
+* Хранит ссылку на поток вывода, текущее значение и шаг отступа при выводе элемента
+*/
 struct RenderContext {
     RenderContext(std::ostream& out)
         : out(out) {
@@ -69,10 +68,10 @@ struct RenderContext {
 };
 
 /*
-    * Абстрактный базовый класс Object служит для унифицированного хранения
-    * конкретных тегов SVG-документа
-    * Реализует паттерн "Шаблонный метод" для вывода содержимого тега
-    */
+* Абстрактный базовый класс Object служит для унифицированного хранения
+* конкретных тегов SVG-документа
+* Реализует паттерн "Шаблонный метод" для вывода содержимого тега
+*/
 class Object {
 public:
     void Render(const RenderContext& context) const;
@@ -122,9 +121,7 @@ using Color = std::variant<std::monostate, std::string, Rgb, Rgba>;
 inline const Color NoneColor{};
 
 std::ostream& operator<<(std::ostream& out, const Color color);
-
 bool operator==(const Color color1, const Color color2);
-
 bool operator!=(const Color color1, const Color color2);
 
 template <typename Owner>
@@ -184,9 +181,9 @@ protected:
 };
 
 /*
-    * Класс Circle моделирует элемент <circle> для отображения круга
-    * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
-    */
+* Класс Circle моделирует элемент <circle> для отображения круга
+* https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
+*/
 class Circle final : public Object, public PathProps<Circle> {
 public:
     Circle() = default;
@@ -202,19 +199,15 @@ private:
 };
 
 /*
-    * Класс Polyline моделирует элемент <polyline> для отображения ломаных линий
-    * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
-    */
+* Класс Polyline моделирует элемент <polyline> для отображения ломаных линий
+* https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
+*/
 class Polyline final : public Object, public PathProps<Polyline> {
 public:
     Polyline() = default;
 
-    // Добавляет очередную вершину к ломаной линии
     Polyline& AddPoint(Point point);
 
-    /*
-        * Прочие методы и данные, необходимые для реализации элемента <polyline>
-        */
 private:
     void RenderObject(const RenderContext& context) const override;
 
@@ -222,32 +215,19 @@ private:
 };
 
 /*
-    * Класс Text моделирует элемент <text> для отображения текста
-    * https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
-    */
+* Класс Text моделирует элемент <text> для отображения текста
+* https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
+*/
 class Text final : public Object, public PathProps<Text> {
 public:
     Text() = default;
 
-    // Задаёт координаты опорной точки (атрибуты x и y)
     Text& SetPosition(Point pos);
-
-    // Задаёт смещение относительно опорной точки (атрибуты dx, dy)
     Text& SetOffset(Point offset);
-
-    // Задаёт размеры шрифта (атрибут font-size)
     Text& SetFontSize(uint32_t size);
-
-    // Задаёт название шрифта (атрибут font-family)
     Text& SetFontFamily(std::string font_family);
-
-    // Задаёт толщину шрифта (атрибут font-weight)
     Text& SetFontWeight(std::string font_weight);
-
-    // Задаёт текстовое содержимое объекта (отображается внутри тега text)
-    Text& SetData(std::string data);
-
-    // Прочие данные и методы, необходимые для реализации элемента <text>
+    Text& SetData(std::string data); // Задаёт текстовое содержимое объекта (отображается внутри тега text)
 
     std::string ShieldDataString(std::string data) const;
 
@@ -267,7 +247,6 @@ public:
     template <typename T>
     void Add(T obj);
 
-    // Добавляет в svg-документ объект-наследник svg::Object
     virtual void AddPtr(std::unique_ptr<Object>&& obj) = 0;
 };
 
@@ -287,15 +266,9 @@ class Document : public ObjectContainer {
 public:
     Document() = default;
 
-    // Add in ObjectContainer
-
-    // Добавляет в svg-документ объект-наследник svg::Object
     void AddPtr(std::unique_ptr<Object>&& obj) override;
-
-    // Выводит в ostream svg-представление документа
     void Render(std::ostream& out) const;
 
-    // Прочие методы и данные, необходимые для реализации класса Document
     std::vector<std::unique_ptr<Object>> objects_;
 };
 

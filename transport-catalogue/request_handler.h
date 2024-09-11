@@ -1,12 +1,4 @@
-#pragma once
-
-#include "transport_catalogue.h"
-#include "map_renderer.h"
-#include "transport_router.h"
-
-#include <optional>
-
-/*
+﻿/*
  * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
  * хотелось бы помещать ни в transport_catalogue, ни в json reader.
  *
@@ -21,31 +13,31 @@
  // с другими подсистемами приложения.
  // См. паттерн проектирования Фасад: https://ru.wikipedia.org/wiki/Фасад_(шаблон_проектирования)
 
+#pragma once
+
+#include "transport_catalogue.h"
+#include "map_renderer.h"
+#include "transport_router.h"
+
+#include <optional>
+ 
 class RequestHandler {
 public:
-    // MapRenderer понадобится в следующей части итогового проекта
-    RequestHandler(const transport_catalogue::TransportCatalogue& db, const renderer::MapRenderer& renderer,
+    RequestHandler(const transport_catalogue::TransportCatalogue& db, const renderer::MapRenderer& renderer, 
         const router::TransportRouter& router)
         : db_(db)
         , renderer_(renderer)
         , router_(router) {
     }
 
-    // Возвращает информацию о маршруте (запрос Bus)
-    BusResponse GetBusInfo(const std::string_view& bus_name) const;
-
-    // Возвращает маршруты, проходящие через
-    StopResponse GetStopInfo(const std::string_view& stop_name) const; // maybe just string_view ?
-
+    BusResponse GetBusInfo(std::string_view bus_name) const;
+    StopResponse GetStopInfo(std::string_view stop_name) const;
     std::optional<RouteResponse> GetRoute(std::string_view from, std::string_view to) const;
-
-    BusesTable GetAllBuses() const; // возможно пригодится какой-то кастомный контейнер для этих целей
-
-    // Этот метод будет нужен в следующей части итогового проекта
+    BusesTable GetAllBuses() const;
     svg::Document RenderMap() const;
 
 private:
-    // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
+    // RequestHandler использует агрегацию объектов
     const transport_catalogue::TransportCatalogue& db_;
     const renderer::MapRenderer& renderer_;
     const router::TransportRouter& router_;

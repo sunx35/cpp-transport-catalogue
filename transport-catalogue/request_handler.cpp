@@ -1,6 +1,4 @@
-#include "request_handler.h"
-
-/*
+﻿/*
  * Здесь можно было бы разместить код обработчика запросов к базе, содержащего логику, которую не
  * хотелось бы помещать ни в transport_catalogue, ни в json reader.
  *
@@ -8,13 +6,13 @@
  * можете оставить его пустым.
  */
 
- // Возвращает информацию о маршруте (запрос Bus)
-BusResponse RequestHandler::GetBusInfo(const std::string_view& bus_name) const {
+#include "request_handler.h"
+
+BusResponse RequestHandler::GetBusInfo(std::string_view bus_name) const {
 	return db_.GetBusInfo(bus_name);
 }
 
-// Возвращает маршруты, проходящие через
-StopResponse RequestHandler::GetStopInfo(const std::string_view& stop_name) const {
+StopResponse RequestHandler::GetStopInfo(std::string_view stop_name) const {
 	return db_.GetStopInfo(stop_name);
 }
 

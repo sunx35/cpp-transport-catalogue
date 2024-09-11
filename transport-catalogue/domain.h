@@ -1,15 +1,4 @@
-#pragma once
-
-#include "geo.h"
-
-#include <set>
-#include <string>
-#include <string_view>
-#include <unordered_map>
-#include <variant>
-#include <vector>
-
-/*
+﻿/*
  * В этом файле вы можете разместить классы/структуры, которые являются частью предметной области (domain)
  * вашего приложения и не зависят от транспортного справочника. Например Автобусные маршруты и Остановки.
  *
@@ -21,8 +10,19 @@
  *
  */
 
- // мы намеренно не используем namespace, так как domain, это основные объекты, которые встречаются
- // во многих частях программы.
+#pragma once
+
+#include "geo.h"
+
+#include <set>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <variant>
+#include <vector>
+
+// мы намеренно не используем namespace, так как domain, это основные объекты, которые встречаются
+// во многих частях программы.
 
 using Buses = std::set<std::string_view>;
 
@@ -69,7 +69,7 @@ using Timecut = std::variant<Wait, RidingBus>;
 
 struct RouteResponse {
 	double total_time;
-	std::vector<Timecut> time_cuts; // it could be waiting on a stop or travelling on a bus.
+	std::vector<Timecut> time_cuts; // it could be waiting on a stop or riding on a bus.
 };
 
 using BusesTable = std::unordered_map<std::string_view, Bus*>;

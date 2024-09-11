@@ -1,8 +1,7 @@
-#include "transport_catalogue.h"
+﻿#include "transport_catalogue.h"
 
 namespace transport_catalogue {
 
-// добавление маршрута в базу
 void TransportCatalogue::AddBus(Bus&& bus) {
 	buses_.push_back(std::move(bus));
 	buses_table_.insert({ buses_.back().name, &buses_.back() });
@@ -11,14 +10,12 @@ void TransportCatalogue::AddBus(Bus&& bus) {
 	}
 }
 
-// добавление остановки в базу
 void TransportCatalogue::AddStop(Stop&& stop) {
 	stops_.push_back(std::move(stop));
 	stops_table_.insert({ stops_.back().name, &stops_.back() });
 	stops_to_buses_[stops_.back().name];
 }
 
-// поиск маршрута по имени
 Bus* TransportCatalogue::FindBusByName(std::string_view name) const {
 	if (!buses_table_.count(name)) {
 		throw std::invalid_argument("Incorrect name");
@@ -26,7 +23,6 @@ Bus* TransportCatalogue::FindBusByName(std::string_view name) const {
 	return buses_table_.at(name);
 }
 
-// поиск остановки по имени
 Stop* TransportCatalogue::FindStopByName(std::string_view name) const {
 	if (!stops_table_.count(name)) {
 		throw std::invalid_argument("Incorrect name");
@@ -34,7 +30,6 @@ Stop* TransportCatalogue::FindStopByName(std::string_view name) const {
 	return stops_table_.at(name);
 }
 
-// получение информации о маршруте
 BusResponse TransportCatalogue::GetBusInfo(std::string_view busname) const {
 	BusResponse response;
 	try {

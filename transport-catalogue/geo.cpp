@@ -1,4 +1,4 @@
-#include "geo.h"
+﻿#include "geo.h"
 
 #include <cmath>
 
@@ -12,7 +12,6 @@ bool Coordinates::operator!=(const Coordinates& other) const {
     return !operator==(other);
 }
 
-// функция для вычисления расстояния между двумя точками
 double ComputeDistance(Coordinates from, Coordinates to) {
     using namespace std;
     if (from == to) {

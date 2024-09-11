@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "geo.h"
 
 #include "domain.h"
@@ -23,28 +23,18 @@ struct DistancesHasher {
 class TransportCatalogue {
 public:
 	void AddBus(Bus&& bus);
-
 	void AddStop(Stop&& stop);
-
 	Bus* FindBusByName(std::string_view name) const;
-
 	Stop* FindStopByName(std::string_view name) const;
-
 	BusResponse GetBusInfo(std::string_view busname) const;
-
 	StopResponse GetStopInfo(std::string_view stopname) const;
-
 	BusesTable GetAllBuses() const;
-
 	StopsTable GetAllStops() const;
-
 	void AddDistance(Stop* stop1, Stop* stop2, Distance distance);
-
 	Distance GetDistance(Stop* stop1, Stop* stop2) const;
 
 private:
 	double ComputeRouteLength(std::string_view busname) const;
-
 	Distance ComputeRoadBasedRouteLength(std::string_view busname) const;
 
 	std::deque<Stop> stops_;
